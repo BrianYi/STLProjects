@@ -122,7 +122,7 @@ public:
     string name;
     shared_ptr<Person> mother;
     shared_ptr<Person> father;
-    vector<shared_ptr<Person>> kids;
+    vector<weak_ptr<Person>> kids;
 
     Person(const string& n, shared_ptr<Person> m = nullptr, shared_ptr<Person> f = nullptr)
         : name(n), mother(m), father(f)
@@ -155,7 +155,7 @@ int main()
     // dad 1
     cout << "nico's family exists" << endl;
     cout << "- nico is shared " << p.use_count() << " times" << endl;
-    cout << "- name of 1st kid of nico's mom: " << p->mother->kids[0]->name << endl;
+    cout << "- name of 1st kid of nico's mom: " << p->mother->kids[0].lock()->name << endl;
     
     p = initFamily("jim");
     cout << "jim's family exists" << endl;
