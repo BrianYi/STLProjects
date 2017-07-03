@@ -76,5 +76,76 @@ namespace MyStd
     public:
         typedef T element_type;
     };
+
+    template <typename T, typename D = default_delete<T>>
+    class unique_ptr
+    {
+    public:
+        typedef ... pointer;
+        typedef T element_type;
+        typedef D deleter_type;
+        T& operator*() const;
+        T* operator->() const noexcept;
+    };
+
+    template <typename T, typename D>
+    class unique_ptr<T[], D>
+    {
+    public:
+        typedef ... pointer;
+        typedef T element_type;
+        typedef D deleter_type;
+        T& operator[](size_t i) const;
+    };
+
+    template <typename T>
+    class default_delete 
+    {
+    public:
+        void operator()(T* p) const
+        {
+            delete p;
+        }
+    };
+
+    template <typename T>
+    class default_delete<T[]>
+    {
+    public:
+        void operator()(T* p) const
+        {
+            delete[] p;
+        }
+    };
+
+    template <typename T>
+    class numeric_limits
+    {
+    public:
+        static constexpr bool is_specialized = false;
+    };
+
+    template<>
+    class numeric_limits<int>
+    {
+    public:
+        static constexpr bool is_specialized = true;
+
+        static constexpr int min() noexcept
+        {
+            return -2147483648;
+        }
+        static constexpr int max() noexcept
+        {
+            return 2147483647;
+        }
+        static constexpr int digits = 31;
+    };
+
+    template <typename T1, typename T2>
+    struct common_type<T1, T2>
+    {
+        typedef decltype(true ? declval<T1>() : declval<T2>()) type;
+    };
 }
 
