@@ -10,6 +10,7 @@
 #include <functional>
 #include <type_traits>
 #include <fcntl.h>
+#include <algorithm>
 using namespace std;
 
 class Person : public std::enable_shared_from_this<Person>
@@ -117,24 +118,34 @@ typename common_type<T1, T2>::type min(const T1& x, const T2& y)
     return x < y ? x : y;
 }
 
+class C {
+public:
+    static void memfunc(int x, int y)
+    {
+        cout << x << " " << y << endl;
+    }
+};
+
+#include "MyStd.h"
 int main()
 {
-    decltype(1) a;
-    decltype(declval<int>()) b;
-    //unique_ptr<Person, PersonDeleter> up(new Person("li"));
-//     auto l = [](Person *person) { delete[] person; };
-//     unique_ptr<Person[], decltype(l)> up1(new Person[2]{ Person("li"), Person("ming") }, l);
-//     unique_ptr<Person[], decltype(l)> up2(move(up1));
-//     unique_ptr<int, function<void(int*)>> up3(new int[10], [](int* p) {
-//         delete[] p;
-//     });
-//     
-//     uniquePtr<int> up(new int[10], [](int* p) {
-//         delete[]p;
-//     });
+    int var_i = 0;
+    add_const<int>::type const_i = var_i;
+    add_lvalue_reference<int>::type lvalref_i = var_i;
+    add_rvalue_reference<int>::type rvalref_i = int(0);
+    add_pointer<int>::type pointer_i = &var_i;
+    remove_reference<decltype(rvalref_i)>::type var_i2;
+    typedef int T[1][2][3][4];
+    int a = extent<T>::value;
+    a = extent<T, 1>::value;
+    a = extent<T, 2>::value;
+    a = extent<T, 3>::value;
+    vector<function<void(int, int)>> tasks;
+
+    int m1 = 5, m2 = 3, m3 = 4, m4 = 1;
+    function<bool(int*, int*)> fun = [](int* a, int* b) { return *a < *b; };
+    pair<int*, int*> mm = minmax({ &m1,&m2,&m3,&m4 }, fun);
     
-    //shared_ptr<Person> a(new Person[2]{ Person("m1"), Person("m2") }, default_delete<Person[]>());
-   // unique_ptr<Person[]> b(new Person[2]{ Person("l1"), Person("l2") });
-    
+    MyStd::swap(m1, m2);
     return 0;
 }

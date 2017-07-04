@@ -81,7 +81,6 @@ namespace MyStd
     class unique_ptr
     {
     public:
-        typedef ... pointer;
         typedef T element_type;
         typedef D deleter_type;
         T& operator*() const;
@@ -92,7 +91,6 @@ namespace MyStd
     class unique_ptr<T[], D>
     {
     public:
-        typedef ... pointer;
         typedef T element_type;
         typedef D deleter_type;
         T& operator[](size_t i) const;
@@ -133,19 +131,69 @@ namespace MyStd
 
         static constexpr int min() noexcept
         {
-            return -2147483648;
+            return -2147483647;
         }
         static constexpr int max() noexcept
         {
-            return 2147483647;
+            return 2147483648;
         }
         static constexpr int digits = 31;
     };
 
-    template <typename T1, typename T2>
-    struct common_type<T1, T2>
+//     template <typename T1, typename T2>
+//     struct common_type<T1, T2>
+//     {
+//         typedef decltype(true ? declval<T1>() : declval<T2>()) type;
+//     };
+
+    template <typename T, T val>
+    struct integral_constant
     {
-        typedef decltype(true ? declval<T1>() : declval<T2>()) type;
+        static constexpr T value = val;
+        typedef T value_type;
+        typedef integral_constant<T, val> type;
+//         constexpr operator value_type()
+//         {
+//             return value;
+//         }
     };
+    typedef integral_constant<bool, true> true_type;
+    typedef integral_constant<bool, false> false_type;
+
+    template <typename T>
+    const T& min(const T& a, const T& b)
+    {
+        return a < b ? a : b;
+    }
+    template <typename T>
+    T min(initializer_list<T> initlist)
+    {
+        return nullptr;
+    }
+
+    template <typename T, typename Compare>
+    const T& min(const T& a, const T& b, Compare cmp)
+    {
+        return cmp(a, b);
+    }
+    template <typename T, typename Compare>
+    T min(initializer_list<T> initlist, Compare cmp)
+    {
+        return nullptr;
+    }
+
+    template <typename T>
+    inline void swap(T& a, T& b)
+    {
+        T tmp(std::move(a));
+        a = std::move(b);
+        b = std::move(tmp);
+    }
+
+    template <typename T, size_t N>
+    void swap(T(&a)[N], T(&b)[N]) noexcept(noexcept(swap(*a, *b)))
+    {
+
+    }
 }
 
