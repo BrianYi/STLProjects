@@ -11,6 +11,9 @@
 #include <type_traits>
 #include <fcntl.h>
 #include <algorithm>
+#include <ratio>
+#include <chrono>
+#include <iomanip>
 using namespace std;
 
 class Person : public std::enable_shared_from_this<Person>
@@ -118,34 +121,46 @@ typename common_type<T1, T2>::type min(const T1& x, const T2& y)
     return x < y ? x : y;
 }
 
-class C {
-public:
-    static void memfunc(int x, int y)
-    {
-        cout << x << " " << y << endl;
-    }
-};
+template <typename C>
+void printClockData()
+{
+    using namespace std;
+    cout << "- precision: ";
 
-#include "MyStd.h"
+    //typedef typename C::period P;
+    if (ratio_less_equal<typename C::period,milli>::value)
+    {
+        typedef typename ratio_multiply<typename C::period, kilo>::type TT;
+        cout << fixed << double(TT::num) / TT::den << " milliseconds" << endl;
+    }
+    else 
+    {
+        cout << fixed << double(C::period::num) / C::period::den << " seconds" << endl;
+    }
+    cout << "- is_steady: " << boolalpha << C::is_steady << endl;
+}
+
+string asString(chrono::system_clock::time_point& tp)
+{
+    time_t t = chrono::system_clock::to_time_t(tp);
+    string ts = ctime(&t);
+    ts.resize(ts.size() - 1);
+    return ts;
+}
+
 int main()
 {
-    int var_i = 0;
-    add_const<int>::type const_i = var_i;
-    add_lvalue_reference<int>::type lvalref_i = var_i;
-    add_rvalue_reference<int>::type rvalref_i = int(0);
-    add_pointer<int>::type pointer_i = &var_i;
-    remove_reference<decltype(rvalref_i)>::type var_i2;
-    typedef int T[1][2][3][4];
-    int a = extent<T>::value;
-    a = extent<T, 1>::value;
-    a = extent<T, 2>::value;
-    a = extent<T, 3>::value;
-    vector<function<void(int, int)>> tasks;
+    chrono::system_clock::time_point tp;
+    cout << "epoch: " << asString(tp) << endl;
 
-    int m1 = 5, m2 = 3, m3 = 4, m4 = 1;
-    function<bool(int*, int*)> fun = [](int* a, int* b) { return *a < *b; };
-    pair<int*, int*> mm = minmax({ &m1,&m2,&m3,&m4 }, fun);
-    
-    MyStd::swap(m1, m2);
+    tp = chrono::system_clock::now();
+    cout << "now: " << asString(tp) << endl;
+
+//     tp = chrono::system_clock::time_point::min();
+//     cout << "min: " << asString(tp) << endl;
+
+    tp = chrono::system_clock::time_point::max();
+    cout << "max: " << asString(tp) << endl;
+
     return 0;
 }
