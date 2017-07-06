@@ -140,27 +140,7 @@ void printClockData()
     cout << "- is_steady: " << boolalpha << C::is_steady << endl;
 }
 
-string asString(chrono::system_clock::time_point& tp)
-{
-    time_t t = chrono::system_clock::to_time_t(tp);
-    string ts = ctime(&t);
-    ts.resize(ts.size() - 1);
-    return ts;
-}
-
 int main()
 {
-    chrono::system_clock::time_point tp;
-    cout << "epoch: " << asString(tp) << endl;
-
-    tp = chrono::system_clock::now();
-    cout << "now: " << asString(tp) << endl;
-
-//     tp = chrono::system_clock::time_point::min();
-//     cout << "min: " << asString(tp) << endl;
-
-    tp = chrono::system_clock::time_point::max();
-    cout << "max: " << asString(tp) << endl;
-
     return 0;
 }
