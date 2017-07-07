@@ -1,6 +1,4 @@
 #include <iostream>
-#include <vector>
-#include <map>
 #include <tuple>
 #include <string>
 #include <complex>
@@ -14,6 +12,12 @@
 #include <ratio>
 #include <chrono>
 #include <iomanip>
+#include <list>
+#include <forward_list>
+#include <array>
+#include <vector>
+#include <map>
+#include <set>
 using namespace std;
 
 class Person : public std::enable_shared_from_this<Person>
@@ -140,7 +144,25 @@ void printClockData()
     cout << "- is_steady: " << boolalpha << C::is_steady << endl;
 }
 
+template <typename T, unsigned N>
+int maxVal(const T (&a)[N])
+{
+    cout << N << endl;
+    return 0;
+}
+
+
 int main()
 {
+    multimap<int, string> coll;
+    coll = {
+        {5,"tagged"}, {2,"a"}, {1, "this"}, {4, "of"}, {6, "strings"}, {1, "is"}, {3, "multimap"}
+    };
+    
+    for (const auto &elem : coll) 
+    {
+        cout << elem.first << " : " << elem.second << endl;
+    }
+    cout << endl;
     return 0;
 }
