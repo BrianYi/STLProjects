@@ -151,18 +151,35 @@ int maxVal(const T (&a)[N])
     return 0;
 }
 
-
+#include <bitset>
 int main()
 {
-    multimap<int, string> coll;
-    coll = {
-        {5,"tagged"}, {2,"a"}, {1, "this"}, {4, "of"}, {6, "strings"}, {1, "is"}, {3, "multimap"}
-    };
-    
-    for (const auto &elem : coll) 
+    set<int> ab{ 2,5,1,3 };
+    auto minpos = min_element<set<int>::iterator>(ab.begin(), ab.end(), [](const int& a, const int& b)->bool {
+        return a > b;
+    });
+    cout << *minpos << endl;
+    srand(time(0));
+    int i = 500;
+    while (i--) 
     {
-        cout << elem.first << " : " << elem.second << endl;
+        int bitPos = 63;
+        __int64 sessionId = 0;
+        int bitVal = 0;
+        while (bitPos--)
+        {
+            bitVal = rand() % 2;
+            sessionId |= (((sessionId >> bitPos) | (bitVal)) << bitPos);
+        }
+        cout << " " << sessionId << " \n";
     }
-    cout << endl;
+//     for (auto e : ab) 
+//     {
+//         cout << e;
+//     }
+//     chrono::time_point<chrono::system_clock> a = chrono::system_clock::now();
+//     __int64 b = a.time_since_epoch().count();
+//     __int64 c = chrono::system_clock::to_time_t(a);
+
     return 0;
 }
