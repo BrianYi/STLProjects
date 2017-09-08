@@ -1,185 +1,271 @@
 #include <iostream>
-#include <tuple>
-#include <string>
-#include <complex>
-#include <memory>
-#include <fstream>
-#include <cstdio>
-#include <functional>
-#include <type_traits>
-#include <fcntl.h>
-#include <algorithm>
-#include <ratio>
-#include <chrono>
-#include <iomanip>
-#include <list>
-#include <forward_list>
-#include <array>
-#include <vector>
-#include <map>
-#include <set>
 using namespace std;
 
-class Person : public std::enable_shared_from_this<Person>
+template <class Iterator, class T>
+Iterator find(Iterator first, Iterator last, const T& value)
 {
+    while (first != last && *first != value)
+        ++first;
+    return first;
+}
+
+struct int_node
+{
+    int val;
+    int_node* next;
+};
+
+template <class Node>
+struct node_wrap
+{
+    typedef Node value_type;
+    Node*   ptr;
+    node_wrap(Node* p = 0) : ptr(p) {}
+    Node& operator*() const { return *ptr; }
+    Node* operator->() const { return ptr; }
+    
+    node_wrap& operator++() { ptr = ptr->next; return *this; }
+    node_wrap operator++(int) { node_wrap tmp = *this; ++*this; return tmp; }
+
+    bool operator==(const node_wrap& i) const { return ptr == i.ptr; }
+    bool operator!=(const node_wrap& i) const { return ptr != i.ptr; }
+};
+
+int_node* CreateLinkList()
+{
+    int_node *head = new int_node;
+    int_node *p = head;
+    int_node *s = nullptr;
+    int c;
+    while (cin >> c, c != -1)
+    {
+        s = new int_node;
+        s->val = c;
+        s->next = nullptr;
+        p->next = s;
+        p = p->next;
+    }
+    return head;
+}
+
+template <class Iterator>
+void printLinkList(Iterator head)
+{
+    Iterator start = ++head;
+    while (start != nullptr)
+    {
+        cout << start->val << " ";
+        start++;
+    }
+    cout << endl;
+}
+
+template <class InputIterator, class OutputIterator>
+OutputIterator copy(InputIterator first, InputIterator last, OutputIterator result)
+{
+    for (; first != last; ++result, ++first)
+        *result = *first;
+    return result;
+}
+
+template <class T> class ostream_iterator
+{
+private:
+    ostream* os;
+    const char* string;
 public:
-    string name;
-    shared_ptr<Person> mother;
-    shared_ptr<Person> father;
-    vector<weak_ptr<Person>> kids;
-
-    Person() : name("") {}
-
-    Person(const string& n, shared_ptr<Person> m = nullptr, shared_ptr<Person> f = nullptr)
-        : name(n), mother(m), father(f)
-    {}
-
-    ~Person()
+    ostream_iterator(ostream& s, const char* c = 0) :os(&s), string(c) {}
+    ostream_iterator(const ostream_iterator& i) :os(i.os), string(i.string) {}
+    ostream_iterator& operator=(const ostream_iterator& i)
     {
-        cout << "delete " << name << endl;
+        os = i.os;
+        string = i.string;
+        return *this;
+    }
+    ostream_iterator<T>& operator=(const T& value)
+    {
+        *os << value;
+        if (string) *os << string;
+        return *this;
     }
 
-    void SetParentAndTheirKids(shared_ptr<Person> m = nullptr, shared_ptr<Person> f = nullptr)
+    ostream_iterator<T>& operator*() { return *this; }
+    ostream_iterator<T>& operator++() { return *this; }
+    ostream_iterator<T>& operator++(int) { return *this; }
+};
+
+template <class ForwardIterator, class T>
+void replace(ForwardIterator first, ForwardIterator last, const T& old_value, const T& new_value)
+{
+    for (; first != last; ++first)
+        if (*first == old_value)
+            *first = new_value;
+}
+
+template <class ForwardIterator>
+ForwardIterator adjacent_find(ForwardIterator first, ForwardIterator last)
+{
+    if (first == last)
+        return last;
+    ForwardIterator next = first;
+    while (++next != last)
     {
-        mother = m;
-        father = f;
-        if (m != nullptr) 
-        {
-            m->kids.push_back(shared_from_this());
-        }
-        if (f != nullptr) 
-        {
-            f->kids.push_back(shared_from_this());
-        }
+        if (*first == *next)
+            return first;
+        first = next;
     }
+    return last;
+}
+
+template <class BidirectionalIterator, class OutputIterator>
+OutputIterator reverse_copy(BidirectionalIterator first, BidirectionalIterator last, OutputIterator result)
+{
+    while (first != last)
+    {
+        --last;
+        *result = *last;
+        ++result;
+    }
+    return result;
+}
+
+struct Iterator
+{ 
+    // operator*()
+    // operator++()
+};
+
+struct InputIterator : public Iterator
+{ 
+    // operator!=()
+    // operator->()
+    // operator++(int)
+};
+
+struct OutputIterator : public Iterator
+{ 
+    // operator=()
+    // operator++(int)
+};
+
+struct ForwardIterator : public InputIterator
+{ 
 
 };
 
-class PersonDeleter
+struct BidirectionalIterator : public ForwardIterator
 {
-public:
-    void operator() (Person *p)
-    {
-        cout << "call delete for Person object" << endl;
-        delete p;
-    }
+    // operator--()
+    // operator--(int)
 };
 
-shared_ptr<Person> initFamily(const string& name)
+struct RandomAccessIterator : public BidirectionalIterator
 {
-    shared_ptr<Person> mom(new Person(name + "'s mom")); // 2
-    shared_ptr<Person> dad(new Person(name + "'s dad")); // 2
-    shared_ptr<Person> kid(new Person(name)); // 1
-    kid->SetParentAndTheirKids(mom, dad);
-    return kid;
+    // operator+=()
+    // operator-=()
+    // operator+()
+    // operator-()
+    // operator[](int)
+    // operator<()
+    // operator>()
+    // operator<=()
+    // operator>=()
+};
+
+template <class Iterator>
+struct _iterator_traits
+{
+    typedef typename Iterator::iterator_category    _iterator_category;
+    typedef typename Iterator::value_type           _value_type;
+    typedef typename Iterator::difference_type      _difference_type;
+    typedef typename Iterator::pointer              _pointer;
+    typedef typename Iterator::reference            _reference;
+};
+
+template <class T>
+struct _iterator_traits<T*>
+{
+    typedef random_access_iterator_tag  _iterator_category;
+    typedef T                           _value_type;
+    typedef ptrdiff_t                   _difference_type;
+    typedef T*                          _pointer;
+    typedef T&                          _reference;
+};
+
+template <class T>
+struct _iterator_traits<const T*>
+{
+    typedef random_access_iterator_tag  _iterator_category;
+    typedef T                           _value_type;
+    typedef ptrdiff_t                   _difference_type;
+    typedef const T*                    _pointer;
+    typedef const T&                    _reference;
+};
+
+template <class InputIterator>
+typename iterator_traits<InputIterator>::value_type 
+sum_nonempty(InputIterator first, InputIterator last)
+{
+    typename iterator_traits<InputIterator>::value_type result = *first++;
+    for (; first != last; ++first)
+        result += *first;
+    return result;
 }
 
-// use for delete object automatically
-void sink(unique_ptr<Person> up)
+template <class InputIterator, class T>
+typename iterator_traits<InputIterator>::difference_type
+count(InputIterator first, InputIterator last, const T& x)
 {
-
+    typename iterator_traits<InputIterator>::difference_type n = 0;
+    for (; first != last; ++first)
+        ++n;
+    return n;
 }
 
-// use for generate object automatically
-unique_ptr<Person> source()
+struct _input_iterator_tag {};
+struct _output_iterator_tag {};
+struct _forward_iterator_tag:public _input_iterator_tag {};
+struct _bidirectional_iterator_tag:public _forward_iterator_tag {};
+struct _random_access_iterator_tag:public _bidirectional_iterator_tag {};
+
+template <class InputIterator, class Distance>
+void advance(InputIterator& i, Distance n, _input_iterator_tag)
 {
-    unique_ptr<Person> ptr(new Person());
-    return ptr;
+    for (; n > 0; --n, ++i) {}
 }
 
-
-template <typename T>
-using uniquePtr = unique_ptr<T, void(*)(T*)>;
-
-template <typename T>
-void foo_impl(const T& val, true_type t)
+template <class InputIterator, class Distance>
+void advance(InputIterator& i, Distance n, _forward_iterator_tag)
 {
-    if (is_integral<T>())
-        cout << "integral pointer!\n";
-    else if (is_floating_point<T>())
-        cout << "floating pointer!\n";
+    advance(i, n, input_iterator_tag());
+}
+
+template <class InputIterator, class Distance>
+void advance(InputIterator& i, Distance n, _bidirectional_iterator_tag)
+{
+    if (n >= 0)
+        for (; n > 0; --n, ++i) {}
     else
-        cout << "other pointer!\n";
+        for (; n < 0; ++n, --i) {}
 }
 
-template <typename T>
-void foo_impl(const T& val, false_type f)
+template <class InputIterator, class Distance>
+void advance(InputIterator& i, Distance n, _random_access_iterator_tag)
 {
-    if (is_integral<T>())
-        cout << "integral!\n";
-    else if (is_floating_point<T>())
-        cout << "floating!\n";
-    else
-        cout << "other!\n";
+    i += n;
 }
 
-template <typename T>
-void foo(const T& val)
+template <class InputIterator, class Distance>
+inline void advance(InputIterator& i, Distance n)
 {
-    foo_impl(val, is_pointer<T>());
+    advance(i, n, typename iterator_traits<i>::iterator_category());
 }
 
-template <typename T1, typename T2>
-typename common_type<T1, T2>::type min(const T1& x, const T2& y)
+int main() 
 {
-    return x < y ? x : y;
-}
+    int *a = new int(2);
 
-template <typename C>
-void printClockData()
-{
-    using namespace std;
-    cout << "- precision: ";
-
-    //typedef typename C::period P;
-    if (ratio_less_equal<typename C::period,milli>::value)
-    {
-        typedef typename ratio_multiply<typename C::period, kilo>::type TT;
-        cout << fixed << double(TT::num) / TT::den << " milliseconds" << endl;
-    }
-    else 
-    {
-        cout << fixed << double(C::period::num) / C::period::den << " seconds" << endl;
-    }
-    cout << "- is_steady: " << boolalpha << C::is_steady << endl;
-}
-
-template <typename T, unsigned N>
-int maxVal(const T (&a)[N])
-{
-    cout << N << endl;
-    return 0;
-}
-
-#include <bitset>
-int main()
-{
-    set<int> ab{ 2,5,1,3 };
-    auto minpos = min_element<set<int>::iterator>(ab.begin(), ab.end(), [](const int& a, const int& b)->bool {
-        return a > b;
-    });
-    cout << *minpos << endl;
-    srand(time(0));
-    int i = 500;
-    while (i--) 
-    {
-        int bitPos = 63;
-        __int64 sessionId = 0;
-        int bitVal = 0;
-        while (bitPos--)
-        {
-            bitVal = rand() % 2;
-            sessionId |= (((sessionId >> bitPos) | (bitVal)) << bitPos);
-        }
-        cout << " " << sessionId << " \n";
-    }
-//     for (auto e : ab) 
-//     {
-//         cout << e;
-//     }
-//     chrono::time_point<chrono::system_clock> a = chrono::system_clock::now();
-//     __int64 b = a.time_since_epoch().count();
-//     __int64 c = chrono::system_clock::to_time_t(a);
-
-    return 0;
+//     int_node* head = CreateLinkList();
+//     node_wrap<int_node> iter(head);
+//     printLinkList(iter);
 }

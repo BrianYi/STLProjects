@@ -18,9 +18,15 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="2jjalloc.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyStd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="2jjalloc.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
